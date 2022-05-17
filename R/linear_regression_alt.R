@@ -9,6 +9,7 @@
 #' @import dplyr
 #'
 #' @export
+
 slr_gd <- function(dat, response, explanatory){
   y <- dat %>% pull({{response}})
   x <- dat %>% pull({{explanatory}})
