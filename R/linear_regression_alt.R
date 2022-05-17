@@ -16,9 +16,9 @@ slr_gd <- function(dat, response, explanatory){
   n <- length(y)
 
   # cost function
-  cost <- function(x, y, theta) {
-    sum( (x %*% theta - y)^2 ) / (2*n)
-  }
+  #cost <- function(x, y, theta) {
+    #sum( (x %*% theta - y)^2 ) / (2*n)
+ # }
 
   # learning rate and iteration limit
   rate <- 0.01
@@ -39,7 +39,8 @@ slr_gd <- function(dat, response, explanatory){
     error <- (xmatr %*% theta - y)
     delta <- t(xmatr) %*% error / n
     theta <- theta - rate * delta
-    past_costs[i] <- cost(xmatr, y, theta)
+    past_costs[i] <- #cost(xmatr, y, theta)
+      sum( (x %*% theta - y)^2 ) / (2*n)
     num_loops[[i]] <- theta
   }
   results <- data.frame(theta)
