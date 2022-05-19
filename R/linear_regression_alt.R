@@ -37,7 +37,6 @@ slr_gd <- function(dat, response, explanatory){
     }
   }
   }
-  print(num_loops)
   results <- matrix(c(c,m),nrow = 1)
   colnames(results) <- c("Intercept", names(dat %>% select({{explanatory}})))
 
@@ -115,16 +114,16 @@ mlr_gd <- function(dat, response) {
 #'@export
 mlr_qr <- function(dat, response) {
   x <- dat %>% select(-{{response}})
-  xmatr <- matrix(x)
+  xmatr <- as.matrix(x)
   xmatr <- cbind(1,xmatr)
   y <- dat %>% pull({{response}})
-  ymatr <- matrix(y)
+  ymatr <- as.matrix(y)
   QR <- qr(xmatr)
   Q <- qr.Q(QR)
   R <- qr.R(QR)
   betas <- solve(R) %*% t(Q) %*% ymatr
-  results <- data.frame(betas,nrow=1)
-  colnames(results) <- c("Intercept", names(xmatr))
+  results <- as.data.frame(t(betas),nrow=1)
+  colnames(results) <- c("Intercept", names(x))
 
 
 
