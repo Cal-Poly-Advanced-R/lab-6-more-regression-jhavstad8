@@ -1,12 +1,11 @@
 test_that("simple linear regression by gradient descent is (approximately) correct", {
 
   my_result <- mtcars %>%
+    scale() %>%
+    as_tibble() %>%
     slr_gd(mpg, hp)
 
-  mtcars2 <- mtcars %>%
-    mutate_all(scale)
-
-  mass_result <- lm(mpg ~ hp, data = mtcars2)
+  mass_result <- lm(mpg ~ hp, data = as_tibble(scale(mtcars)))
 
   expect_equal(coef(mass_result)[['hp']], my_result$hp,
                tolerance = 0.05, scale = abs(my_result$hp))
