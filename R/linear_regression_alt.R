@@ -11,36 +11,37 @@
 #' @export
 
 slr_gd <- function(dat, response, explanatory){
+
+  # set values and coefs
   y <- dat %>% pull({{response}})
   x <- dat %>% pull({{explanatory}})
   xmatr <- matrix(x)
   n <- length(y)
-
+  m = 0
+  c = 0
   # learning rate and iteration limit
   rate <- 0.01
-  max_loops <- 100
-
-  # keep history
-  past_costs <- double(max_loops)
-  num_loops <- list(max_loops)
-
-  # initialize coefficients
-  theta <- matrix(c(0,0), nrow=2)
-
-  # add a column of 1's for the intercept coefficient
-  xmatr <- cbind(1, xmatr)
+  num_loops = 0
 
   # gradient descent
-  for (i in 1:max_loops) {
-    error <- (xmatr %*% theta - y)
-    delta <- t(xmatr) %*% error / n
-    theta <- theta - rate * delta
-    past_costs[i] <- sum( (x %*% theta - y)^2 ) / (2*n)
-    num_loops[[i]] <- theta
+  repeat{
+  Y_pred = m*x + c  # The current predicted value of Y
+  D_m = (-2/n) * sum(x * (y - Y_pred))  # Derivative wrt m
+  D_c = (-2/n) * sum(y - Y_pred)  # Derivative wrt c
+  m = m - rate * D_m  # Update m
+  c = c - rate * D_c  # Update c
+  num_loops = num_loops + 1
+  if(abs(D_m) < .001 ){
+    if(abs(D_c) < .001){
+      break
+    }
   }
-  results <- data.frame(theta)
+  }
+  print(num_loops)
+  results <- matrix(c(c,m),nrow = 1)
+  colnames(results) <- c("Intercept", names(dat %>% select({{explanatory}})))
 
-  ### I found this code on r-bloggers.com. Not sure if I am allowed to use it but it is the best I can do
+
 
   ### Compute coefficients by gradient descent
   ### Return a data frame of the same form as in the `simple_linear_regression`
@@ -69,17 +70,24 @@ slr_gd <- function(dat, response, explanatory){
 #'@export
 mlr_gd <- function(dat, response) {
   x <- dat %>% select(-{{response}})
-  xmatr <- matrix(x)
+  xmatr <- as.matrix(x)
   xmatr <- cbind(1,xmatr)
   y <- dat %>% pull({{response}})
-  ymatr <- matrix(y)
-  B <- c(rep(0,ncol(dat)))
-  num_loops <- 100
+  ymatr <- as.matrix(y)
+  B <- matrix(0,ncol(dat))
+  num_loops <- 100000
   rate <- .01
+  n <- nrow(dat)
   for(i in 1:num_loops){
-    value <- rate * 2*t(xmatr)(ymatr-xmatr*B)
-  }
+    cost <- sum((xmatr %*% B - ymatr)^2) /(2*n)
+    B <- B - rate * (1/n)*(t(xmatr) %*% (xmatr%*%B - ymatr))
+    }
 
+    results <- as.data.frame(t(B))
+    names(results)[1] <- "Intercept"
+
+
+    ### I took some of this code from an RPubs article by Mike Fang and adapted it
 
   ### Compute coefficients by gradient descent
   ### Return a data frame of the same form as in the `multiple_linear_regression`
