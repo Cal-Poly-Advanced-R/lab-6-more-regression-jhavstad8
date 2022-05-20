@@ -371,36 +371,36 @@ pre code {
 <h2>Simple Linear Regression by gradient descent</h2>
 <pre class="r"><code>slr_gd</code></pre>
 <pre><code>## function(dat, response, explanatory){
+## 
+##   # set values and coefs
 ##   y &lt;- dat %&gt;% pull({{response}})
 ##   x &lt;- dat %&gt;% pull({{explanatory}})
 ##   xmatr &lt;- matrix(x)
 ##   n &lt;- length(y)
-## 
+##   m = 0
+##   c = 0
 ##   # learning rate and iteration limit
 ##   rate &lt;- 0.01
-##   max_loops &lt;- 100
-## 
-##   # keep history
-##   past_costs &lt;- double(max_loops)
-##   num_loops &lt;- list(max_loops)
-## 
-##   # initialize coefficients
-##   theta &lt;- matrix(c(0,0), nrow=2)
-## 
-##   # add a column of 1&#39;s for the intercept coefficient
-##   xmatr &lt;- cbind(1, xmatr)
+##   num_loops = 0
 ## 
 ##   # gradient descent
-##   for (i in 1:max_loops) {
-##     error &lt;- (xmatr %*% theta - y)
-##     delta &lt;- t(xmatr) %*% error / n
-##     theta &lt;- theta - rate * delta
-##     past_costs[i] &lt;- sum( (x %*% theta - y)^2 ) / (2*n)
-##     num_loops[[i]] &lt;- theta
+##   repeat{
+##   Y_pred = m*x + c  # The current predicted value of Y
+##   D_m = (-2/n) * sum(x * (y - Y_pred))  # Derivative wrt m
+##   D_c = (-2/n) * sum(y - Y_pred)  # Derivative wrt c
+##   m = m - rate * D_m  # Update m
+##   c = c - rate * D_c  # Update c
+##   num_loops = num_loops + 1
+##   if(abs(D_m) &lt; .001 ){
+##     if(abs(D_c) &lt; .001){
+##       break
+##     }
 ##   }
-##   results &lt;- data.frame(theta)
+##   }
+##   results &lt;- matrix(c(c,m),nrow = 1)
+##   colnames(results) &lt;- c(&quot;Intercept&quot;, names(dat %&gt;% select({{explanatory}})))
 ## 
-##   ### I found this code on r-bloggers.com. Not sure if I am allowed to use it but it is the best I can do
+## 
 ## 
 ##   ### Compute coefficients by gradient descent
 ##   ### Return a data frame of the same form as in the `simple_linear_regression`
@@ -408,7 +408,7 @@ pre code {
 ##   return(results)
 ## 
 ## }
-## &lt;bytecode: 0x7f990116edd8&gt;
+## &lt;bytecode: 0x7fe2795ed0f8&gt;
 ## &lt;environment: namespace:regress431&gt;</code></pre>
 </div>
 <div id="multiple-regression-by-matrix-decomposition" class="section level2">
@@ -416,16 +416,16 @@ pre code {
 <pre class="r"><code>mlr_qr</code></pre>
 <pre><code>## function(dat, response) {
 ##   x &lt;- dat %&gt;% select(-{{response}})
-##   xmatr &lt;- matrix(x)
+##   xmatr &lt;- as.matrix(x)
 ##   xmatr &lt;- cbind(1,xmatr)
 ##   y &lt;- dat %&gt;% pull({{response}})
-##   ymatr &lt;- matrix(y)
+##   ymatr &lt;- as.matrix(y)
 ##   QR &lt;- qr(xmatr)
 ##   Q &lt;- qr.Q(QR)
 ##   R &lt;- qr.R(QR)
 ##   betas &lt;- solve(R) %*% t(Q) %*% ymatr
-##   results &lt;- data.frame(betas,nrow=1)
-##   colnames(results) &lt;- c(&quot;Intercept&quot;, names(xmatr))
+##   results &lt;- as.data.frame(t(betas),nrow=1)
+##   colnames(results) &lt;- c(&quot;Intercept&quot;, names(x))
 ## 
 ## 
 ## 
@@ -435,7 +435,7 @@ pre code {
 ##   return(results)
 ## 
 ## }
-## &lt;bytecode: 0x7f98fba251c0&gt;
+## &lt;bytecode: 0x7fe271fa05b8&gt;
 ## &lt;environment: namespace:regress431&gt;</code></pre>
 </div>
 
